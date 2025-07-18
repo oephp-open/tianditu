@@ -1,0 +1,35 @@
+# 忽略依赖
+/vendor/
+
+# 忽略IDE文件
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# 忽略日志文件
+*.log
+
+# 忽略缓存文件
+.phpunit.cache/
+.php-cs-fixer.cache
+
+# 忽略环境配置文件
+.env
+.env.local
+.env.*.local
+
+# 忽略composer lock文件（库项目通常忽略）
+# composer.lock
+
+# 忽略操作系统文件
+.DS_Store
+Thumbs.db
+
+# 忽略测试覆盖率报告
+/coverage/
+/build/
+
+# 忽略临时文件
+*.tmp
+*.temp

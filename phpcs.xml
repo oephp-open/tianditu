@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<ruleset name="TianDiTu PHP SDK">
+    <description>The coding standard for TianDiTu PHP SDK.</description>
+
+    <!-- 检查这些目录和文件 -->
+    <file>src</file>
+    <file>tests</file>
+
+    <!-- 使用 PSR-12 编码标准 -->
+    <rule ref="PSR12"/>
+
+    <!-- 排除一些不必要的检查 -->
+    <rule ref="PSR1.Files.SideEffects">
+        <exclude-pattern>tests/*</exclude-pattern>
+    </rule>
+
+    <!-- 设置文件编码 -->
+    <ini name="default_charset" value="UTF-8"/>
+
+    <!-- 显示进度和违规信息 -->
+    <arg value="p"/>
+    <arg value="s"/>
+
+    <!-- 只显示错误和警告的文件名 -->
+    <arg name="report" value="full"/>
+
+    <!-- 使用颜色 -->
+    <arg name="colors"/>
+</ruleset>

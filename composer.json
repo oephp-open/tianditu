@@ -1,0 +1,29 @@
+{
+    "name": "oephp-open/tianditu",
+    "description": "天地图（Tianditu）PHP SDK - A PHP SDK for Tianditu Map API",
+    "type": "library",
+    "keywords": ["tianditu", "map", "gis", "sdk", "php", "天地图"],
+    "homepage": "https://github.com/oephp-open/tianditu",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "oephp-open",
+            "email": "oephp.open@gmail.com"
+        }
+    ],
+    "require": {
+        "php": ">=7.2",
+        "guzzlehttp/guzzle": "^6.5|^7.0",
+        "ext-json": "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "OephpOpen\\TianDiTu\\": "src/"
+        }
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}
