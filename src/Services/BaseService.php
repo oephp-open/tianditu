@@ -178,22 +178,20 @@ abstract class BaseService
      */
     private function extractApiErrorMessage(GuzzleException $exception): string
     {
-        // 默认错误信息
-        $defaultMessage = 'Network error: ' . $exception->getMessage();
-
         // 如果是 RequestException，尝试获取响应内容
         if ($exception instanceof \GuzzleHttp\Exception\RequestException && $exception->hasResponse()) {
             $response = $exception->getResponse();
+            $statusCode = $response->getStatusCode();
 
             try {
                 $body = $response->getBody()->getContents();
                 $data = json_decode($body, true);
 
                 if (json_last_error() === JSON_ERROR_NONE && is_array($data)) {
-                    // 检查不同的错误格式
+                    // 检查不同的错误格式，按优先级顺序
 
                     // 格式1: {"msg": "非法Key", "resolve": "...", "code": 1}
-                    if (isset($data['msg']) && !empty($data['msg'])) {
+                    if (isset($data['msg']) && !empty($data['msg']) && is_string($data['msg'])) {
                         return $data['msg'];
                     }
 
@@ -203,28 +201,71 @@ abstract class BaseService
                     }
 
                     // 格式3: {"message": "错误信息"}
-                    if (isset($data['message']) && !empty($data['message'])) {
+                    if (isset($data['message']) && !empty($data['message']) && is_string($data['message'])) {
                         return $data['message'];
                     }
 
                     // 格式4: {"error": "错误信息"}
-                    if (isset($data['error']) && !empty($data['error'])) {
+                    if (isset($data['error']) && !empty($data['error']) && is_string($data['error'])) {
                         return $data['error'];
                     }
 
                     // 格式5: {"desc": "错误描述"}
-                    if (isset($data['desc']) && !empty($data['desc'])) {
+                    if (isset($data['desc']) && !empty($data['desc']) && is_string($data['desc'])) {
                         return $data['desc'];
                     }
                 }
+
+                // 如果无法解析JSON或没有找到合适的错误字段，根据状态码返回简化信息
+                if ($statusCode == 403) {
+                    return '访问被拒绝';
+                } elseif ($statusCode == 404) {
+                    return '请求的资源不存在';
+                } elseif ($statusCode == 401) {
+                    return '身份验证失败';
+                } elseif ($statusCode == 500) {
+                    return '服务器内部错误';
+                } elseif ($statusCode >= 400 && $statusCode < 500) {
+                    return '客户端请求错误';
+                } elseif ($statusCode >= 500) {
+                    return '服务器错误';
+                }
             } catch (\Exception $e) {
-                // 解析失败，使用默认消息
+                // 解析失败，根据状态码返回简化错误
+                if ($statusCode == 403) {
+                    return '访问被拒绝';
+                } elseif ($statusCode == 404) {
+                    return '请求的资源不存在';
+                }
             }
         }
 
-        return $defaultMessage;
-    }
+        // 其他网络错误的简化处理
+        $message = $exception->getMessage();
 
+        // 连接超时
+        if (strpos($message, 'timeout') !== false || strpos($message, 'timed out') !== false) {
+            return '网络连接超时';
+        }
+
+        // DNS解析失败
+        if (strpos($message, 'resolve') !== false || strpos($message, 'dns') !== false) {
+            return 'DNS解析失败';
+        }
+
+        // 连接被拒绝
+        if (strpos($message, 'Connection refused') !== false) {
+            return '连接被拒绝';
+        }
+
+        // 网络不可达
+        if (strpos($message, 'unreachable') !== false) {
+            return '网络不可达';
+        }
+
+        // 默认网络错误
+        return '网络连接错误';
+    }
     /**
      * 执行请求并返回统一格式响应
      *

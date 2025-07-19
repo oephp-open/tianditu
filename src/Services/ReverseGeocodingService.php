@@ -18,37 +18,23 @@ class ReverseGeocodingService extends BaseService
      * @param float $lon 经度
      * @param float $lat 纬度
      * @param array $options 可选参数
-     * @return array 查询结果
-     * @throws TianDiTuException
-     */
-    public function search($lon, $lat, array $options = [])
-    {
-        $params = array_merge([
-            'postStr' => json_encode([
-                'lon' => $lon,
-                'lat' => $lat,
-                'ver' => 1,
-            ]),
-            'type' => 'geocode',
-        ], $options);
-
-        $response = $this->get('/geocoder', $params);
-
-        return $this->formatReverseGeocodingResponse($response);
-    }
-
-    /**
-     * 逆地理编码查询（统一返回格式）
-     *
-     * @param float $lon 经度
-     * @param float $lat 纬度
-     * @param array $options 可选参数
      * @return array 统一格式响应 [ret, msg, data]
      */
-    public function searchWithFormat($lon, $lat, array $options = []): array
+    public function search($lon, $lat, array $options = []): array
     {
         return $this->executeRequest(function () use ($lon, $lat, $options) {
-            return $this->search($lon, $lat, $options);
+            $params = array_merge([
+                'postStr' => json_encode([
+                    'lon' => $lon,
+                    'lat' => $lat,
+                    'ver' => 1,
+                ]),
+                'type' => 'geocode',
+            ], $options);
+
+            $response = $this->get('/geocoder', $params);
+
+            return $this->formatReverseGeocodingResponse($response);
         }, '逆地理编码查询成功');
     }
 
@@ -57,52 +43,39 @@ class ReverseGeocodingService extends BaseService
      *
      * @param array $coordinates 坐标点列表 [['lon' => 116.3974, 'lat' => 39.9093], ...]
      * @param array $options 可选参数
-     * @return array 查询结果
-     * @throws TianDiTuException
-     */
-    public function batchSearch(array $coordinates, array $options = [])
-    {
-        if (empty($coordinates)) {
-            throw new TianDiTuException('Coordinates array cannot be empty');
-        }
-
-        if (count($coordinates) > 100) {
-            throw new TianDiTuException('Maximum 100 coordinates allowed per batch request');
-        }
-
-        $postData = [];
-        foreach ($coordinates as $coord) {
-            if (!isset($coord['lon']) || !isset($coord['lat'])) {
-                throw new TianDiTuException('Each coordinate must have lon and lat keys');
-            }
-            $postData[] = [
-                'lon' => (float) $coord['lon'],
-                'lat' => (float) $coord['lat'],
-                'ver' => 1,
-            ];
-        }
-
-        $params = array_merge([
-            'postStr' => json_encode($postData),
-            'type' => 'geocode',
-        ], $options);
-
-        $response = $this->get('/geocoder', $params);
-
-        return $this->formatBatchReverseGeocodingResponse($response);
-    }
-
-    /**
-     * 批量逆地理编码查询（统一返回格式）
-     *
-     * @param array $coordinates 坐标点列表 [['lon' => 116.3974, 'lat' => 39.9093], ...]
-     * @param array $options 可选参数
      * @return array 统一格式响应 [ret, msg, data]
      */
-    public function batchSearchWithFormat(array $coordinates, array $options = []): array
+    public function batchSearch(array $coordinates, array $options = []): array
     {
         return $this->executeRequest(function () use ($coordinates, $options) {
-            return $this->batchSearch($coordinates, $options);
+            if (empty($coordinates)) {
+                throw new TianDiTuException('Coordinates array cannot be empty');
+            }
+
+            if (count($coordinates) > 100) {
+                throw new TianDiTuException('Maximum 100 coordinates allowed per batch request');
+            }
+
+            $postData = [];
+            foreach ($coordinates as $coord) {
+                if (!isset($coord['lon']) || !isset($coord['lat'])) {
+                    throw new TianDiTuException('Each coordinate must have lon and lat keys');
+                }
+                $postData[] = [
+                    'lon' => (float) $coord['lon'],
+                    'lat' => (float) $coord['lat'],
+                    'ver' => 1,
+                ];
+            }
+
+            $params = array_merge([
+                'postStr' => json_encode($postData),
+                'type' => 'geocode',
+            ], $options);
+
+            $response = $this->get('/geocoder', $params);
+
+            return $this->formatBatchReverseGeocodingResponse($response);
         }, '批量逆地理编码查询成功');
     }
 

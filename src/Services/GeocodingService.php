@@ -17,40 +17,27 @@ class GeocodingService extends BaseService
      *
      * @param string $address 地址
      * @param array $options 可选参数
-     * @return array
-     * @throws TianDiTuException
+     * @return array 统一格式响应 [ret, msg, data]
      */
     public function search(string $address, array $options = []): array
     {
-        if (empty($address)) {
-            throw new TianDiTuException('Missing required parameter: address');
-        }
-
-        // 天地图地理编码API正确格式
-        $params = [
-            'ds' => json_encode([
-                'keyWord' => $address
-            ])
-        ];
-
-        $params = array_merge($params, $options);
-
-        $response = $this->get('/geocoder', $params);
-
-        return $this->formatGeocodingResponse($response);
-    }
-
-    /**
-     * 地理编码：根据地址描述获取地理坐标（统一返回格式）
-     *
-     * @param string $address 地址
-     * @param array $options 可选参数
-     * @return array 统一格式响应 [ret, msg, data]
-     */
-    public function searchWithFormat(string $address, array $options = []): array
-    {
         return $this->executeRequest(function () use ($address, $options) {
-            return $this->search($address, $options);
+            if (empty($address)) {
+                throw new TianDiTuException('Missing required parameter: address');
+            }
+
+            // 天地图地理编码API正确格式
+            $params = [
+                'ds' => json_encode([
+                    'keyWord' => $address
+                ])
+            ];
+
+            $params = array_merge($params, $options);
+
+            $response = $this->get('/geocoder', $params);
+
+            return $this->formatGeocodingResponse($response);
         }, '地理编码查询成功');
     }
 
@@ -59,38 +46,38 @@ class GeocodingService extends BaseService
      *
      * @param array $addresses 地址列表
      * @param array $options 可选参数
-     * @return array 查询结果
-     * @throws TianDiTuException
-     */
-    public function batchSearch(array $addresses, array $options = [])
-    {
-        if (empty($addresses)) {
-            throw new TianDiTuException('Addresses array cannot be empty');
-        }
-
-        if (count($addresses) > 10) {
-            throw new TianDiTuException('Maximum 10 addresses allowed per batch request');
-        }
-
-        $results = [];
-        foreach ($addresses as $address) {
-            $results[] = $this->search($address, $options);
-        }
-
-        return $results;
-    }
-
-    /**
-     * 批量地理编码查询（统一返回格式）
-     *
-     * @param array $addresses 地址列表
-     * @param array $options 可选参数
      * @return array 统一格式响应 [ret, msg, data]
      */
-    public function batchSearchWithFormat(array $addresses, array $options = []): array
+    public function batchSearch(array $addresses, array $options = []): array
     {
         return $this->executeRequest(function () use ($addresses, $options) {
-            return $this->batchSearch($addresses, $options);
+            if (empty($addresses)) {
+                throw new TianDiTuException('Addresses array cannot be empty');
+            }
+
+            if (count($addresses) > 10) {
+                throw new TianDiTuException('Maximum 10 addresses allowed per batch request');
+            }
+
+            $results = [];
+            foreach ($addresses as $address) {
+                // 调用原始内部方法获取数据
+                if (empty($address)) {
+                    throw new TianDiTuException('Missing required parameter: address');
+                }
+
+                $params = [
+                    'ds' => json_encode([
+                        'keyWord' => $address
+                    ])
+                ];
+
+                $params = array_merge($params, $options);
+                $response = $this->get('/geocoder', $params);
+                $results[] = $this->formatGeocodingResponse($response);
+            }
+
+            return $results;
         }, '批量地理编码查询成功');
     }
 

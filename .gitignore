@@ -42,3 +42,5 @@ test_*.php
 
 # 忽略文档中的测试相关文件
 docs/test-*.md
+
+examples/

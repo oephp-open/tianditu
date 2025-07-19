@@ -20,8 +20,7 @@ class CoordinateService extends BaseService
      * @param int $fromType 源坐标系类型
      * @param int $toType 目标坐标系类型
      * @param array $options 可选参数
-     * @return array 转换结果
-     * @throws TianDiTuException
+     * @return array 统一格式响应 [ret, msg, data]
      */
     public function transform(
         $lon,
@@ -29,46 +28,26 @@ class CoordinateService extends BaseService
         $fromType = 1,
         $toType = 2,
         array $options = []
-    ) {
-        $this->validateRequiredParams([
-            'lon' => $lon,
-            'lat' => $lat,
-        ], ['lon', 'lat']);
-
-        $params = array_merge([
-            'postStr' => json_encode([
-                'points' => [
-                    ['x' => $lon, 'y' => $lat]
-                ],
-                'type' => "{$fromType},{$toType}",
-            ]),
-            'type' => 'transform',
-        ], $options);
-
-        $response = $this->get('/coord', $params);
-
-        return $this->formatCoordinateResponse($response);
-    }
-
-    /**
-     * 坐标转换（统一返回格式）
-     *
-     * @param float $lon 经度
-     * @param float $lat 纬度
-     * @param int $fromType 源坐标系类型
-     * @param int $toType 目标坐标系类型
-     * @param array $options 可选参数
-     * @return array 统一格式响应 [ret, msg, data]
-     */
-    public function transformWithFormat(
-        $lon,
-        $lat,
-        $fromType = 1,
-        $toType = 2,
-        array $options = []
     ): array {
         return $this->executeRequest(function () use ($lon, $lat, $fromType, $toType, $options) {
-            return $this->transform($lon, $lat, $fromType, $toType, $options);
+            $this->validateRequiredParams([
+                'lon' => $lon,
+                'lat' => $lat,
+            ], ['lon', 'lat']);
+
+            $params = array_merge([
+                'postStr' => json_encode([
+                    'points' => [
+                        ['x' => $lon, 'y' => $lat]
+                    ],
+                    'type' => "{$fromType},{$toType}",
+                ]),
+                'type' => 'transform',
+            ], $options);
+
+            $response = $this->get('/coord', $params);
+
+            return $this->formatCoordinateResponse($response);
         }, '坐标转换成功');
     }
 
@@ -79,64 +58,45 @@ class CoordinateService extends BaseService
      * @param int $fromType 源坐标系类型
      * @param int $toType 目标坐标系类型
      * @param array $options 可选参数
-     * @return array 转换结果
-     * @throws TianDiTuException
+     * @return array 统一格式响应 [ret, msg, data]
      */
     public function batchTransform(
         array $coordinates,
         $fromType = 1,
         $toType = 2,
         array $options = []
-    ) {
-        if (empty($coordinates)) {
-            throw new TianDiTuException('Coordinates array cannot be empty');
-        }
-
-        if (count($coordinates) > 100) {
-            throw new TianDiTuException('Maximum 100 coordinates allowed per batch request');
-        }
-
-        $points = [];
-        foreach ($coordinates as $coord) {
-            if (!isset($coord['lon']) || !isset($coord['lat'])) {
-                throw new TianDiTuException('Each coordinate must have lon and lat keys');
-            }
-            $points[] = [
-                'x' => (float) $coord['lon'],
-                'y' => (float) $coord['lat'],
-            ];
-        }
-
-        $params = array_merge([
-            'postStr' => json_encode([
-                'points' => $points,
-                'type' => "{$fromType},{$toType}",
-            ]),
-            'type' => 'transform',
-        ], $options);
-
-        $response = $this->get('/coord', $params);
-
-        return $this->formatBatchCoordinateResponse($response);
-    }
-
-    /**
-     * 批量坐标转换（统一返回格式）
-     *
-     * @param array $coordinates 坐标点列表 [['lon' => 116.3974, 'lat' => 39.9093], ...]
-     * @param int $fromType 源坐标系类型
-     * @param int $toType 目标坐标系类型
-     * @param array $options 可选参数
-     * @return array 统一格式响应 [ret, msg, data]
-     */
-    public function batchTransformWithFormat(
-        array $coordinates,
-        $fromType = 1,
-        $toType = 2,
-        array $options = []
     ): array {
         return $this->executeRequest(function () use ($coordinates, $fromType, $toType, $options) {
-            return $this->batchTransform($coordinates, $fromType, $toType, $options);
+            if (empty($coordinates)) {
+                throw new TianDiTuException('Coordinates array cannot be empty');
+            }
+
+            if (count($coordinates) > 100) {
+                throw new TianDiTuException('Maximum 100 coordinates allowed per batch request');
+            }
+
+            $points = [];
+            foreach ($coordinates as $coord) {
+                if (!isset($coord['lon']) || !isset($coord['lat'])) {
+                    throw new TianDiTuException('Each coordinate must have lon and lat keys');
+                }
+                $points[] = [
+                    'x' => (float) $coord['lon'],
+                    'y' => (float) $coord['lat'],
+                ];
+            }
+
+            $params = array_merge([
+                'postStr' => json_encode([
+                    'points' => $points,
+                    'type' => "{$fromType},{$toType}",
+                ]),
+                'type' => 'transform',
+            ], $options);
+
+            $response = $this->get('/coord', $params);
+
+            return $this->formatBatchCoordinateResponse($response);
         }, '批量坐标转换成功');
     }
 

@@ -17,54 +17,41 @@ class PoiService extends BaseService
      *
      * @param string $keyword 搜索关键词
      * @param array $options 可选参数
-     * @return array
-     * @throws TianDiTuException
+     * @return array 统一格式响应 [ret, msg, data]
      */
     public function search(string $keyword, array $options = []): array
     {
-        if (empty($keyword)) {
-            throw new TianDiTuException('Missing required parameter: keyword');
-        }
-
-        $params = [
-            'keyWord' => $keyword,
-            'level' => $options['level'] ?? '12',
-            'mapBound' => $options['mapBound'] ?? '-180,-90,180,90',
-            'queryType' => '1', // 普通搜索
-            'start' => $options['start'] ?? '0',
-            'count' => $options['count'] ?? '10'
-        ];
-
-        // 添加可选参数
-        if (isset($options['specify'])) {
-            $params['specify'] = $options['specify'];
-        }
-        if (isset($options['dataTypes'])) {
-            $params['dataTypes'] = $options['dataTypes'];
-        }
-        if (isset($options['show'])) {
-            $params['show'] = $options['show'];
-        }
-
-        $response = $this->get('/v2/search', [
-            'postStr' => json_encode($params),
-            'type' => 'query'
-        ]);
-
-        return $this->formatPoiResponse($response);
-    }
-
-    /**
-     * 普通POI搜索（统一返回格式）
-     *
-     * @param string $keyword 搜索关键词
-     * @param array $options 可选参数
-     * @return array 统一格式响应 [ret, msg, data]
-     */
-    public function searchWithFormat(string $keyword, array $options = []): array
-    {
         return $this->executeRequest(function () use ($keyword, $options) {
-            return $this->search($keyword, $options);
+            if (empty($keyword)) {
+                throw new TianDiTuException('Missing required parameter: keyword');
+            }
+
+            $params = [
+                'keyWord' => $keyword,
+                'level' => $options['level'] ?? '12',
+                'mapBound' => $options['mapBound'] ?? '-180,-90,180,90',
+                'queryType' => '1', // 普通搜索
+                'start' => $options['start'] ?? '0',
+                'count' => $options['count'] ?? '10'
+            ];
+
+            // 添加可选参数
+            if (isset($options['specify'])) {
+                $params['specify'] = $options['specify'];
+            }
+            if (isset($options['dataTypes'])) {
+                $params['dataTypes'] = $options['dataTypes'];
+            }
+            if (isset($options['show'])) {
+                $params['show'] = $options['show'];
+            }
+
+            $response = $this->get('/v2/search', [
+                'postStr' => json_encode($params),
+                'type' => 'query'
+            ]);
+
+            return $this->formatPoiResponse($response);
         }, 'POI搜索成功');
     }
 
@@ -76,8 +63,7 @@ class PoiService extends BaseService
      * @param float $lat 中心点纬度
      * @param int $radius 搜索半径（米）
      * @param array $options 可选参数
-     * @return array
-     * @throws TianDiTuException
+     * @return array 统一格式响应 [ret, msg, data]
      */
     public function searchNearby(
         string $keyword,
@@ -86,54 +72,34 @@ class PoiService extends BaseService
         int $radius = 1000,
         array $options = []
     ): array {
-        if (empty($keyword)) {
-            throw new TianDiTuException('Missing required parameter: keyword');
-        }
-
-        $params = [
-            'keyWord' => $keyword,
-            'queryRadius' => (string)$radius,
-            'pointLonlat' => "{$lon},{$lat}",
-            'queryType' => '3', // 周边搜索
-            'start' => $options['start'] ?? '0',
-            'count' => $options['count'] ?? '10'
-        ];
-
-        // 添加可选参数
-        if (isset($options['dataTypes'])) {
-            $params['dataTypes'] = $options['dataTypes'];
-        }
-        if (isset($options['show'])) {
-            $params['show'] = $options['show'];
-        }
-
-        $response = $this->get('/v2/search', [
-            'postStr' => json_encode($params),
-            'type' => 'query'
-        ]);
-
-        return $this->formatPoiResponse($response);
-    }
-
-    /**
-     * 周边搜索（统一返回格式）
-     *
-     * @param string $keyword 搜索关键词
-     * @param float $lon 中心点经度
-     * @param float $lat 中心点纬度
-     * @param int $radius 搜索半径（米）
-     * @param array $options 可选参数
-     * @return array 统一格式响应 [ret, msg, data]
-     */
-    public function searchNearbyWithFormat(
-        string $keyword,
-        float $lon,
-        float $lat,
-        int $radius = 1000,
-        array $options = []
-    ): array {
         return $this->executeRequest(function () use ($keyword, $lon, $lat, $radius, $options) {
-            return $this->searchNearby($keyword, $lon, $lat, $radius, $options);
+            if (empty($keyword)) {
+                throw new TianDiTuException('Missing required parameter: keyword');
+            }
+
+            $params = [
+                'keyWord' => $keyword,
+                'queryRadius' => (string)$radius,
+                'pointLonlat' => "{$lon},{$lat}",
+                'queryType' => '3', // 周边搜索
+                'start' => $options['start'] ?? '0',
+                'count' => $options['count'] ?? '10'
+            ];
+
+            // 添加可选参数
+            if (isset($options['dataTypes'])) {
+                $params['dataTypes'] = $options['dataTypes'];
+            }
+            if (isset($options['show'])) {
+                $params['show'] = $options['show'];
+            }
+
+            $response = $this->get('/v2/search', [
+                'postStr' => json_encode($params),
+                'type' => 'query'
+            ]);
+
+            return $this->formatPoiResponse($response);
         }, '周边搜索成功');
     }
 
@@ -146,8 +112,7 @@ class PoiService extends BaseService
      * @param float $maxLon 最大经度
      * @param float $maxLat 最大纬度
      * @param array $options 可选参数
-     * @return array
-     * @throws TianDiTuException
+     * @return array 统一格式响应 [ret, msg, data]
      */
     public function searchInBounds(
         string $keyword,
@@ -157,33 +122,35 @@ class PoiService extends BaseService
         float $maxLat,
         array $options = []
     ): array {
-        if (empty($keyword)) {
-            throw new TianDiTuException('Missing required parameter: keyword');
-        }
+        return $this->executeRequest(function () use ($keyword, $minLon, $minLat, $maxLon, $maxLat, $options) {
+            if (empty($keyword)) {
+                throw new TianDiTuException('Missing required parameter: keyword');
+            }
 
-        $params = [
-            'keyWord' => $keyword,
-            'mapBound' => "{$minLon},{$minLat},{$maxLon},{$maxLat}",
-            'level' => $options['level'] ?? '12',
-            'queryType' => '2', // 视野内搜索
-            'start' => $options['start'] ?? '0',
-            'count' => $options['count'] ?? '10'
-        ];
+            $params = [
+                'keyWord' => $keyword,
+                'mapBound' => "{$minLon},{$minLat},{$maxLon},{$maxLat}",
+                'level' => $options['level'] ?? '12',
+                'queryType' => '2', // 视野内搜索
+                'start' => $options['start'] ?? '0',
+                'count' => $options['count'] ?? '10'
+            ];
 
-        // 添加可选参数
-        if (isset($options['dataTypes'])) {
-            $params['dataTypes'] = $options['dataTypes'];
-        }
-        if (isset($options['show'])) {
-            $params['show'] = $options['show'];
-        }
+            // 添加可选参数
+            if (isset($options['dataTypes'])) {
+                $params['dataTypes'] = $options['dataTypes'];
+            }
+            if (isset($options['show'])) {
+                $params['show'] = $options['show'];
+            }
 
-        $response = $this->get('/v2/search', [
-            'postStr' => json_encode($params),
-            'type' => 'query'
-        ]);
+            $response = $this->get('/v2/search', [
+                'postStr' => json_encode($params),
+                'type' => 'query'
+            ]);
 
-        return $this->formatPoiResponse($response);
+            return $this->formatPoiResponse($response);
+        }, 'POI视野内搜索成功');
     }
     /**
      * 行政区域搜索
@@ -191,84 +158,43 @@ class PoiService extends BaseService
      * @param string $keyword 搜索关键词
      * @param string $adminCode 行政区编码
      * @param array $options 可选参数
-     * @return array
-     * @throws TianDiTuException
+     * @return array 统一格式响应 [ret, msg, data]
      */
     public function searchInAdmin(
         string $keyword,
         string $adminCode,
         array $options = []
     ): array {
-        if (empty($keyword)) {
-            throw new TianDiTuException('Missing required parameter: keyword');
-        }
-        if (empty($adminCode)) {
-            throw new TianDiTuException('Missing required parameter: adminCode');
-        }
-
-        $params = [
-            'keyWord' => $keyword,
-            'specify' => $adminCode,
-            'queryType' => '12', // 行政区域搜索
-            'start' => $options['start'] ?? '0',
-            'count' => $options['count'] ?? '10'
-        ];
-
-        // 添加可选参数
-        if (isset($options['dataTypes'])) {
-            $params['dataTypes'] = $options['dataTypes'];
-        }
-        if (isset($options['show'])) {
-            $params['show'] = $options['show'];
-        }
-
-        $response = $this->get('/v2/search', [
-            'postStr' => json_encode($params),
-            'type' => 'query'
-        ]);
-
-        return $this->formatPoiResponse($response);
-    }
-
-    /**
-     * 视野内搜索（统一返回格式）
-     *
-     * @param string $keyword 搜索关键词
-     * @param float $minLon 西南角经度
-     * @param float $minLat 西南角纬度
-     * @param float $maxLon 东北角经度
-     * @param float $maxLat 东北角纬度
-     * @param array $options 可选参数
-     * @return array 统一格式响应 [ret, msg, data]
-     */
-    public function searchInBoundsWithFormat(
-        string $keyword,
-        float $minLon,
-        float $minLat,
-        float $maxLon,
-        float $maxLat,
-        array $options = []
-    ): array {
-        return $this->executeRequest(function () use ($keyword, $minLon, $minLat, $maxLon, $maxLat, $options) {
-            return $this->searchInBounds($keyword, $minLon, $minLat, $maxLon, $maxLat, $options);
-        }, 'POI视野内搜索成功');
-    }
-
-    /**
-     * 行政区域搜索（统一返回格式）
-     *
-     * @param string $keyword 搜索关键词
-     * @param string $adminCode 行政区编码
-     * @param array $options 可选参数
-     * @return array 统一格式响应 [ret, msg, data]
-     */
-    public function searchInAdminWithFormat(
-        string $keyword,
-        string $adminCode,
-        array $options = []
-    ): array {
         return $this->executeRequest(function () use ($keyword, $adminCode, $options) {
-            return $this->searchInAdmin($keyword, $adminCode, $options);
+            if (empty($keyword)) {
+                throw new TianDiTuException('Missing required parameter: keyword');
+            }
+            if (empty($adminCode)) {
+                throw new TianDiTuException('Missing required parameter: adminCode');
+            }
+
+            $params = [
+                'keyWord' => $keyword,
+                'specify' => $adminCode,
+                'queryType' => '12', // 行政区域搜索
+                'start' => $options['start'] ?? '0',
+                'count' => $options['count'] ?? '10'
+            ];
+
+            // 添加可选参数
+            if (isset($options['dataTypes'])) {
+                $params['dataTypes'] = $options['dataTypes'];
+            }
+            if (isset($options['show'])) {
+                $params['show'] = $options['show'];
+            }
+
+            $response = $this->get('/v2/search', [
+                'postStr' => json_encode($params),
+                'type' => 'query'
+            ]);
+
+            return $this->formatPoiResponse($response);
         }, 'POI行政区域搜索成功');
     }
 

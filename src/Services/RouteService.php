@@ -20,8 +20,7 @@ class RouteService extends BaseService
      * @param float $endLon 终点经度
      * @param float $endLat 终点纬度
      * @param array $options 可选参数
-     * @return array 路径规划结果
-     * @throws TianDiTuException
+     * @return array 统一格式响应 [ret, msg, data]
      */
     public function driving(
         $startLon,
@@ -29,47 +28,27 @@ class RouteService extends BaseService
         $endLon,
         $endLat,
         array $options = []
-    ) {
-        $this->validateRequiredParams([
-            'startLon' => $startLon,
-            'startLat' => $startLat,
-            'endLon' => $endLon,
-            'endLat' => $endLat,
-        ], ['startLon', 'startLat', 'endLon', 'endLat']);
-
-        $params = array_merge([
-            'postStr' => json_encode([
-                'orig' => "{$startLon},{$startLat}",
-                'dest' => "{$endLon},{$endLat}",
-                'style' => '0', // 默认推荐路线
-            ]),
-            'type' => 'search',
-        ], $options);
-
-        $response = $this->get('/drive', $params);
-
-        return $this->formatRouteResponse($response);
-    }
-
-    /**
-     * 驾车路径规划（统一返回格式）
-     *
-     * @param float $startLon 起点经度
-     * @param float $startLat 起点纬度
-     * @param float $endLon 终点经度
-     * @param float $endLat 终点纬度
-     * @param array $options 可选参数
-     * @return array 统一格式响应 [ret, msg, data]
-     */
-    public function drivingWithFormat(
-        $startLon,
-        $startLat,
-        $endLon,
-        $endLat,
-        array $options = []
     ): array {
         return $this->executeRequest(function () use ($startLon, $startLat, $endLon, $endLat, $options) {
-            return $this->driving($startLon, $startLat, $endLon, $endLat, $options);
+            $this->validateRequiredParams([
+                'startLon' => $startLon,
+                'startLat' => $startLat,
+                'endLon' => $endLon,
+                'endLat' => $endLat,
+            ], ['startLon', 'startLat', 'endLon', 'endLat']);
+
+            $params = array_merge([
+                'postStr' => json_encode([
+                    'orig' => "{$startLon},{$startLat}",
+                    'dest' => "{$endLon},{$endLat}",
+                    'style' => '0', // 默认推荐路线
+                ]),
+                'type' => 'search',
+            ], $options);
+
+            $response = $this->get('/drive', $params);
+
+            return $this->formatRouteResponse($response);
         }, '驾车路径规划成功');
     }
 
@@ -81,8 +60,7 @@ class RouteService extends BaseService
      * @param float $endLon 终点经度
      * @param float $endLat 终点纬度
      * @param array $options 可选参数
-     * @return array 路径规划结果
-     * @throws TianDiTuException
+     * @return array 统一格式响应 [ret, msg, data]
      */
     public function walking(
         $startLon,
@@ -90,46 +68,26 @@ class RouteService extends BaseService
         $endLon,
         $endLat,
         array $options = []
-    ) {
-        $this->validateRequiredParams([
-            'startLon' => $startLon,
-            'startLat' => $startLat,
-            'endLon' => $endLon,
-            'endLat' => $endLat,
-        ], ['startLon', 'startLat', 'endLon', 'endLat']);
-
-        $params = array_merge([
-            'postStr' => json_encode([
-                'orig' => "{$startLon},{$startLat}",
-                'dest' => "{$endLon},{$endLat}",
-            ]),
-            'type' => 'search',
-        ], $options);
-
-        $response = $this->get('/walk', $params);
-
-        return $this->formatRouteResponse($response);
-    }
-
-    /**
-     * 步行路径规划（统一返回格式）
-     *
-     * @param float $startLon 起点经度
-     * @param float $startLat 起点纬度
-     * @param float $endLon 终点经度
-     * @param float $endLat 终点纬度
-     * @param array $options 可选参数
-     * @return array 统一格式响应 [ret, msg, data]
-     */
-    public function walkingWithFormat(
-        $startLon,
-        $startLat,
-        $endLon,
-        $endLat,
-        array $options = []
     ): array {
         return $this->executeRequest(function () use ($startLon, $startLat, $endLon, $endLat, $options) {
-            return $this->walking($startLon, $startLat, $endLon, $endLat, $options);
+            $this->validateRequiredParams([
+                'startLon' => $startLon,
+                'startLat' => $startLat,
+                'endLon' => $endLon,
+                'endLat' => $endLat,
+            ], ['startLon', 'startLat', 'endLon', 'endLat']);
+
+            $params = array_merge([
+                'postStr' => json_encode([
+                    'orig' => "{$startLon},{$startLat}",
+                    'dest' => "{$endLon},{$endLat}",
+                ]),
+                'type' => 'search',
+            ], $options);
+
+            $response = $this->get('/walk', $params);
+
+            return $this->formatRouteResponse($response);
         }, '步行路径规划成功');
     }
 
@@ -140,44 +98,29 @@ class RouteService extends BaseService
      * @param string $endAddress 终点地址
      * @param string $city 城市名称
      * @param array $options 可选参数
-     * @return array 路径规划结果
-     * @throws TianDiTuException
-     */
-    public function transit($startAddress, $endAddress, $city, array $options = [])
-    {
-        $this->validateRequiredParams([
-            'startAddress' => $startAddress,
-            'endAddress' => $endAddress,
-            'city' => $city,
-        ], ['startAddress', 'endAddress', 'city']);
-
-        $params = array_merge([
-            'postStr' => json_encode([
-                'startPosition' => $startAddress,
-                'endPosition' => $endAddress,
-                'city' => $city,
-            ]),
-            'type' => 'search',
-        ], $options);
-
-        $response = $this->get('/transit', $params);
-
-        return $this->formatTransitResponse($response);
-    }
-
-    /**
-     * 公交路径规划（统一返回格式）
-     *
-     * @param string $startAddress 起点地址
-     * @param string $endAddress 终点地址
-     * @param string $city 城市名称
-     * @param array $options 可选参数
      * @return array 统一格式响应 [ret, msg, data]
      */
-    public function transitWithFormat($startAddress, $endAddress, $city, array $options = []): array
+    public function transit($startAddress, $endAddress, $city, array $options = []): array
     {
         return $this->executeRequest(function () use ($startAddress, $endAddress, $city, $options) {
-            return $this->transit($startAddress, $endAddress, $city, $options);
+            $this->validateRequiredParams([
+                'startAddress' => $startAddress,
+                'endAddress' => $endAddress,
+                'city' => $city,
+            ], ['startAddress', 'endAddress', 'city']);
+
+            $params = array_merge([
+                'postStr' => json_encode([
+                    'startPosition' => $startAddress,
+                    'endPosition' => $endAddress,
+                    'city' => $city,
+                ]),
+                'type' => 'search',
+            ], $options);
+
+            $response = $this->get('/transit', $params);
+
+            return $this->formatTransitResponse($response);
         }, '公交路径规划成功');
     }
 
