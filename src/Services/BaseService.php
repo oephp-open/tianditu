@@ -103,7 +103,9 @@ abstract class BaseService
 
             return $data;
         } catch (GuzzleException $e) {
-            throw new NetworkException('Network error: ' . $e->getMessage(), 0, $e);
+            // 尝试从异常响应中提取API错误信息
+            $errorMessage = $this->extractApiErrorMessage($e);
+            throw new NetworkException($errorMessage, 0, $e);
         }
     }
 
@@ -146,7 +148,9 @@ abstract class BaseService
 
             return $responseData;
         } catch (GuzzleException $e) {
-            throw new NetworkException('Network error: ' . $e->getMessage(), 0, $e);
+            // 尝试从异常响应中提取API错误信息
+            $errorMessage = $this->extractApiErrorMessage($e);
+            throw new NetworkException($errorMessage, 0, $e);
         }
     }
 
@@ -164,6 +168,61 @@ abstract class BaseService
                 throw new TianDiTuException("Missing required parameter: {$param}");
             }
         }
+    }
+
+    /**
+     * 从 Guzzle 异常中提取 API 错误信息
+     *
+     * @param GuzzleException $exception Guzzle 异常
+     * @return string 提取的错误信息
+     */
+    private function extractApiErrorMessage(GuzzleException $exception): string
+    {
+        // 默认错误信息
+        $defaultMessage = 'Network error: ' . $exception->getMessage();
+
+        // 如果是 RequestException，尝试获取响应内容
+        if ($exception instanceof \GuzzleHttp\Exception\RequestException && $exception->hasResponse()) {
+            $response = $exception->getResponse();
+
+            try {
+                $body = $response->getBody()->getContents();
+                $data = json_decode($body, true);
+
+                if (json_last_error() === JSON_ERROR_NONE && is_array($data)) {
+                    // 检查不同的错误格式
+
+                    // 格式1: {"msg": "非法Key", "resolve": "...", "code": 1}
+                    if (isset($data['msg']) && !empty($data['msg'])) {
+                        return $data['msg'];
+                    }
+
+                    // 格式2: {"status": {"cndesc": "错误描述", "infocode": 1001}}
+                    if (isset($data['status']['cndesc']) && !empty($data['status']['cndesc'])) {
+                        return $data['status']['cndesc'];
+                    }
+
+                    // 格式3: {"message": "错误信息"}
+                    if (isset($data['message']) && !empty($data['message'])) {
+                        return $data['message'];
+                    }
+
+                    // 格式4: {"error": "错误信息"}
+                    if (isset($data['error']) && !empty($data['error'])) {
+                        return $data['error'];
+                    }
+
+                    // 格式5: {"desc": "错误描述"}
+                    if (isset($data['desc']) && !empty($data['desc'])) {
+                        return $data['desc'];
+                    }
+                }
+            } catch (\Exception $e) {
+                // 解析失败，使用默认消息
+            }
+        }
+
+        return $defaultMessage;
     }
 
     /**

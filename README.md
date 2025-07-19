@@ -1,8 +1,18 @@
 # 天地图 PHP SDK
 
-[![PHP Version](https://img.shields.io/badge/php-%3E%3D7.2-blue.svg)](https://php.net)
+[![PHP Version](https://img.shiel# 地理编码 - 地址转坐标
+$result = $client->geocoding()->search('北京市海淀区中关村');
+echo "坐标: " . $result['location']['lon'] . ", " . $result['location']['lat'];
+
+# 统一格式版本 (推荐)
+$result = $client->geocoding()->searchWithFormat('北京市海淀区中关村');
+if ($result['ret'] === 1) {
+    echo "坐标: " . $result['data']['location']['lon'] . ", " . $result['data']['location']['lat'];
+} else {
+    echo "错误: " . $result['msg'];
+}io/badge/php-%3E%3D7.2-blue.svg)](https://php.net)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
-[![Latest Version](https://img.shields.io/badge/version-1.0.0-orange.svg)](https://github.com/oephp-open/tianditu)
+[![Latest Version](https://img.shields.io/badge/version-1.1-orange.svg)](https://github.com/oephp-open/tianditu)
 
 一个用于天地图（TianDiTu）Web服务API的PHP SDK，提供地理编码、逆地理编码、POI搜索等功能。
 
@@ -12,9 +22,12 @@
 - 🌍 **逆地理编码** - 将地理坐标转换为地址信息
 - 🔍 **POI搜索** - 普通搜索、周边搜索、视野内搜索
 - 🏛️ **行政区域搜索** - 指定行政区内的POI搜索
+- 🚗 **路径规划** - 驾车、步行、公交路径规划
+- 🔄 **坐标转换** - 多种坐标系统间的相互转换
 - ⚡ **高性能** - 基于Guzzle HTTP客户端
 - 🛡️ **异常处理** - 完善的错误处理机制
 - 📦 **PSR标准** - 遵循PSR-4自动加载和PSR-12编码规范
+- 🎯 **统一格式** - 提供统一的返回格式 `[ret, msg, data]`
 - 🧪 **完整测试** - 提供单元测试和集成测试
 
 ## 安装
@@ -209,6 +222,15 @@ vendor/bin/phpcs
 ```
 
 ## 更新日志
+
+### v1.1 (2024-07-19)
+
+- 🎯 **统一返回格式** - 新增 `WithFormat` 方法，提供统一的 `[ret, msg, data]` 返回格式
+- ✨ **错误信息优化** - 智能提取 API 错误信息，返回简洁明了的错误描述
+- 🛡️ **增强异常处理** - 自动捕获和格式化所有异常，无需手动 try-catch
+- 📚 **向后兼容** - 保留所有原有方法，确保现有代码正常运行
+- 🔧 **新增方法** - 所有服务类都新增了对应的 `WithFormat` 方法
+- 📖 **完善文档** - 新增统一格式使用文档和示例
 
 ### v1.0.0 (2024-07-18)
 

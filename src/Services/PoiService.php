@@ -231,6 +231,48 @@ class PoiService extends BaseService
     }
 
     /**
+     * 视野内搜索（统一返回格式）
+     *
+     * @param string $keyword 搜索关键词
+     * @param float $minLon 西南角经度
+     * @param float $minLat 西南角纬度
+     * @param float $maxLon 东北角经度
+     * @param float $maxLat 东北角纬度
+     * @param array $options 可选参数
+     * @return array 统一格式响应 [ret, msg, data]
+     */
+    public function searchInBoundsWithFormat(
+        string $keyword,
+        float $minLon,
+        float $minLat,
+        float $maxLon,
+        float $maxLat,
+        array $options = []
+    ): array {
+        return $this->executeRequest(function () use ($keyword, $minLon, $minLat, $maxLon, $maxLat, $options) {
+            return $this->searchInBounds($keyword, $minLon, $minLat, $maxLon, $maxLat, $options);
+        }, 'POI视野内搜索成功');
+    }
+
+    /**
+     * 行政区域搜索（统一返回格式）
+     *
+     * @param string $keyword 搜索关键词
+     * @param string $adminCode 行政区编码
+     * @param array $options 可选参数
+     * @return array 统一格式响应 [ret, msg, data]
+     */
+    public function searchInAdminWithFormat(
+        string $keyword,
+        string $adminCode,
+        array $options = []
+    ): array {
+        return $this->executeRequest(function () use ($keyword, $adminCode, $options) {
+            return $this->searchInAdmin($keyword, $adminCode, $options);
+        }, 'POI行政区域搜索成功');
+    }
+
+    /**
      * 格式化POI响应
      *
      * @param array $response
