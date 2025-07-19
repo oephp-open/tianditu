@@ -33,3 +33,12 @@ Thumbs.db
 # 忽略临时文件
 *.tmp
 *.temp
+
+# 忽略测试文件和示例文件
+/tests/
+/examples/
+test_*.php
+*_test.php
+
+# 忽略文档中的测试相关文件
+docs/test-*.md

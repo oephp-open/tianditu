@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace OephpOpen\TianDiTu\Services;
 
 use OephpOpen\TianDiTu\Exceptions\TianDiTuException;
+use OephpOpen\TianDiTu\Response\ResponseFormatter;
 
 /**
  * POI 搜索服务类
@@ -54,6 +55,20 @@ class PoiService extends BaseService
     }
 
     /**
+     * 普通POI搜索（统一返回格式）
+     *
+     * @param string $keyword 搜索关键词
+     * @param array $options 可选参数
+     * @return array 统一格式响应 [ret, msg, data]
+     */
+    public function searchWithFormat(string $keyword, array $options = []): array
+    {
+        return $this->executeRequest(function () use ($keyword, $options) {
+            return $this->search($keyword, $options);
+        }, 'POI搜索成功');
+    }
+
+    /**
      * 周边搜索
      *
      * @param string $keyword 搜索关键词
@@ -98,6 +113,28 @@ class PoiService extends BaseService
         ]);
 
         return $this->formatPoiResponse($response);
+    }
+
+    /**
+     * 周边搜索（统一返回格式）
+     *
+     * @param string $keyword 搜索关键词
+     * @param float $lon 中心点经度
+     * @param float $lat 中心点纬度
+     * @param int $radius 搜索半径（米）
+     * @param array $options 可选参数
+     * @return array 统一格式响应 [ret, msg, data]
+     */
+    public function searchNearbyWithFormat(
+        string $keyword,
+        float $lon,
+        float $lat,
+        int $radius = 1000,
+        array $options = []
+    ): array {
+        return $this->executeRequest(function () use ($keyword, $lon, $lat, $radius, $options) {
+            return $this->searchNearby($keyword, $lon, $lat, $radius, $options);
+        }, '周边搜索成功');
     }
 
     /**

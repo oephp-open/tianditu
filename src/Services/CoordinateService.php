@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace OephpOpen\TianDiTu\Services;
 
 use OephpOpen\TianDiTu\Exceptions\TianDiTuException;
+use OephpOpen\TianDiTu\Response\ResponseFormatter;
 
 /**
  * 坐标转换服务类
@@ -47,6 +48,28 @@ class CoordinateService extends BaseService
         $response = $this->get('/coord', $params);
 
         return $this->formatCoordinateResponse($response);
+    }
+
+    /**
+     * 坐标转换（统一返回格式）
+     *
+     * @param float $lon 经度
+     * @param float $lat 纬度
+     * @param int $fromType 源坐标系类型
+     * @param int $toType 目标坐标系类型
+     * @param array $options 可选参数
+     * @return array 统一格式响应 [ret, msg, data]
+     */
+    public function transformWithFormat(
+        $lon,
+        $lat,
+        $fromType = 1,
+        $toType = 2,
+        array $options = []
+    ): array {
+        return $this->executeRequest(function () use ($lon, $lat, $fromType, $toType, $options) {
+            return $this->transform($lon, $lat, $fromType, $toType, $options);
+        }, '坐标转换成功');
     }
 
     /**
@@ -95,6 +118,26 @@ class CoordinateService extends BaseService
         $response = $this->get('/coord', $params);
 
         return $this->formatBatchCoordinateResponse($response);
+    }
+
+    /**
+     * 批量坐标转换（统一返回格式）
+     *
+     * @param array $coordinates 坐标点列表 [['lon' => 116.3974, 'lat' => 39.9093], ...]
+     * @param int $fromType 源坐标系类型
+     * @param int $toType 目标坐标系类型
+     * @param array $options 可选参数
+     * @return array 统一格式响应 [ret, msg, data]
+     */
+    public function batchTransformWithFormat(
+        array $coordinates,
+        $fromType = 1,
+        $toType = 2,
+        array $options = []
+    ): array {
+        return $this->executeRequest(function () use ($coordinates, $fromType, $toType, $options) {
+            return $this->batchTransform($coordinates, $fromType, $toType, $options);
+        }, '批量坐标转换成功');
     }
 
     /**

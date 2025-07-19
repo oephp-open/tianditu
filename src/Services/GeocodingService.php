@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace OephpOpen\TianDiTu\Services;
 
 use OephpOpen\TianDiTu\Exceptions\TianDiTuException;
+use OephpOpen\TianDiTu\Response\ResponseFormatter;
 
 /**
  * 地理编码服务类
@@ -40,6 +41,20 @@ class GeocodingService extends BaseService
     }
 
     /**
+     * 地理编码：根据地址描述获取地理坐标（统一返回格式）
+     *
+     * @param string $address 地址
+     * @param array $options 可选参数
+     * @return array 统一格式响应 [ret, msg, data]
+     */
+    public function searchWithFormat(string $address, array $options = []): array
+    {
+        return $this->executeRequest(function () use ($address, $options) {
+            return $this->search($address, $options);
+        }, '地理编码查询成功');
+    }
+
+    /**
      * 批量地理编码查询
      *
      * @param array $addresses 地址列表
@@ -63,6 +78,20 @@ class GeocodingService extends BaseService
         }
 
         return $results;
+    }
+
+    /**
+     * 批量地理编码查询（统一返回格式）
+     *
+     * @param array $addresses 地址列表
+     * @param array $options 可选参数
+     * @return array 统一格式响应 [ret, msg, data]
+     */
+    public function batchSearchWithFormat(array $addresses, array $options = []): array
+    {
+        return $this->executeRequest(function () use ($addresses, $options) {
+            return $this->batchSearch($addresses, $options);
+        }, '批量地理编码查询成功');
     }
 
     /**

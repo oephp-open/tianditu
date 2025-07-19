@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace OephpOpen\TianDiTu\Services;
 
 use OephpOpen\TianDiTu\Exceptions\TianDiTuException;
+use OephpOpen\TianDiTu\Response\ResponseFormatter;
 
 /**
  * 逆地理编码服务类
@@ -34,6 +35,21 @@ class ReverseGeocodingService extends BaseService
         $response = $this->get('/geocoder', $params);
 
         return $this->formatReverseGeocodingResponse($response);
+    }
+
+    /**
+     * 逆地理编码查询（统一返回格式）
+     *
+     * @param float $lon 经度
+     * @param float $lat 纬度
+     * @param array $options 可选参数
+     * @return array 统一格式响应 [ret, msg, data]
+     */
+    public function searchWithFormat($lon, $lat, array $options = []): array
+    {
+        return $this->executeRequest(function () use ($lon, $lat, $options) {
+            return $this->search($lon, $lat, $options);
+        }, '逆地理编码查询成功');
     }
 
     /**
@@ -74,6 +90,20 @@ class ReverseGeocodingService extends BaseService
         $response = $this->get('/geocoder', $params);
 
         return $this->formatBatchReverseGeocodingResponse($response);
+    }
+
+    /**
+     * 批量逆地理编码查询（统一返回格式）
+     *
+     * @param array $coordinates 坐标点列表 [['lon' => 116.3974, 'lat' => 39.9093], ...]
+     * @param array $options 可选参数
+     * @return array 统一格式响应 [ret, msg, data]
+     */
+    public function batchSearchWithFormat(array $coordinates, array $options = []): array
+    {
+        return $this->executeRequest(function () use ($coordinates, $options) {
+            return $this->batchSearch($coordinates, $options);
+        }, '批量逆地理编码查询成功');
     }
 
     /**

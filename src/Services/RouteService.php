@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace OephpOpen\TianDiTu\Services;
 
-use Tianditu\Exceptions\TianDiTuException;
+use OephpOpen\TianDiTu\Exceptions\TianDiTuException;
+use OephpOpen\TianDiTu\Response\ResponseFormatter;
 
 /**
  * 路径规划服务类
@@ -51,6 +52,28 @@ class RouteService extends BaseService
     }
 
     /**
+     * 驾车路径规划（统一返回格式）
+     *
+     * @param float $startLon 起点经度
+     * @param float $startLat 起点纬度
+     * @param float $endLon 终点经度
+     * @param float $endLat 终点纬度
+     * @param array $options 可选参数
+     * @return array 统一格式响应 [ret, msg, data]
+     */
+    public function drivingWithFormat(
+        $startLon,
+        $startLat,
+        $endLon,
+        $endLat,
+        array $options = []
+    ): array {
+        return $this->executeRequest(function () use ($startLon, $startLat, $endLon, $endLat, $options) {
+            return $this->driving($startLon, $startLat, $endLon, $endLat, $options);
+        }, '驾车路径规划成功');
+    }
+
+    /**
      * 步行路径规划
      *
      * @param float $startLon 起点经度
@@ -89,6 +112,28 @@ class RouteService extends BaseService
     }
 
     /**
+     * 步行路径规划（统一返回格式）
+     *
+     * @param float $startLon 起点经度
+     * @param float $startLat 起点纬度
+     * @param float $endLon 终点经度
+     * @param float $endLat 终点纬度
+     * @param array $options 可选参数
+     * @return array 统一格式响应 [ret, msg, data]
+     */
+    public function walkingWithFormat(
+        $startLon,
+        $startLat,
+        $endLon,
+        $endLat,
+        array $options = []
+    ): array {
+        return $this->executeRequest(function () use ($startLon, $startLat, $endLon, $endLat, $options) {
+            return $this->walking($startLon, $startLat, $endLon, $endLat, $options);
+        }, '步行路径规划成功');
+    }
+
+    /**
      * 公交路径规划
      *
      * @param string $startAddress 起点地址
@@ -118,6 +163,22 @@ class RouteService extends BaseService
         $response = $this->get('/transit', $params);
 
         return $this->formatTransitResponse($response);
+    }
+
+    /**
+     * 公交路径规划（统一返回格式）
+     *
+     * @param string $startAddress 起点地址
+     * @param string $endAddress 终点地址
+     * @param string $city 城市名称
+     * @param array $options 可选参数
+     * @return array 统一格式响应 [ret, msg, data]
+     */
+    public function transitWithFormat($startAddress, $endAddress, $city, array $options = []): array
+    {
+        return $this->executeRequest(function () use ($startAddress, $endAddress, $city, $options) {
+            return $this->transit($startAddress, $endAddress, $city, $options);
+        }, '公交路径规划成功');
     }
 
     /**

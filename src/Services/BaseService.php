@@ -9,6 +9,7 @@ use GuzzleHttp\Exception\GuzzleException;
 use OephpOpen\TianDiTu\Exceptions\TianDiTuException;
 use OephpOpen\TianDiTu\Exceptions\ApiException;
 use OephpOpen\TianDiTu\Exceptions\NetworkException;
+use OephpOpen\TianDiTu\Response\ResponseFormatter;
 
 /**
  * 基础服务类
@@ -162,6 +163,41 @@ abstract class BaseService
             if (!isset($params[$param]) || $params[$param] === '') {
                 throw new TianDiTuException("Missing required parameter: {$param}");
             }
+        }
+    }
+
+    /**
+     * 执行请求并返回统一格式响应
+     *
+     * @param callable $requestCallback 请求回调函数
+     * @param string $successMessage 成功消息
+     * @return array 统一格式响应
+     */
+    protected function executeRequest(callable $requestCallback, string $successMessage = '请求成功'): array
+    {
+        try {
+            $data = $requestCallback();
+            return ResponseFormatter::success($data, $successMessage);
+        } catch (TianDiTuException $e) {
+            return ResponseFormatter::exception($e);
+        } catch (\Exception $e) {
+            return ResponseFormatter::exception($e);
+        }
+    }
+
+    /**
+     * 安全执行方法（用于向后兼容）
+     *
+     * @param callable $callback 回调函数
+     * @param mixed $defaultValue 默认值
+     * @return mixed
+     */
+    protected function safeExecute(callable $callback, $defaultValue = null)
+    {
+        try {
+            return $callback();
+        } catch (\Exception $e) {
+            return $defaultValue;
         }
     }
 }
