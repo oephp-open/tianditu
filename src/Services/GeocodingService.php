@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace OephpOpen\TianDiTu\Services;
 
 use OephpOpen\TianDiTu\Exceptions\TianDiTuException;
-use OephpOpen\TianDiTu\Response\ResponseFormatter;
 
 /**
  * 地理编码服务类
